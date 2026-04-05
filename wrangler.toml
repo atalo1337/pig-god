@@ -1,0 +1,7 @@
+name = "cf-pages-smtp-sender"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+SMTP_SECURE = "true"
+SMTP_PORT = "465"
