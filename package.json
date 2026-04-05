@@ -1,0 +1,16 @@
+{
+  "name": "cf-pages-smtp-sender",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev public --compatibility-date=2025-01-01",
+    "deploy": "wrangler pages deploy public"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250109.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.99.0"
+  }
+}
