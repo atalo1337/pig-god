@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cloudflare SMTP 邮件发送</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        margin: 0;
+        padding: 24px;
+        background: #f6f7fb;
+      }
+      .card {
+        max-width: 760px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 8px 24px rgba(18, 38, 63, 0.08);
+      }
+      h1 {
+        margin-top: 0;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      label {
+        font-size: 14px;
+        color: #333;
+        display: block;
+        margin-bottom: 6px;
+      }
+      input,
+      textarea,
+      button {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #d8dde8;
+        border-radius: 8px;
+        font-size: 14px;
+        padding: 10px 12px;
+      }
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+      .full {
+        grid-column: 1 / -1;
+      }
+      button {
+        cursor: pointer;
+        background: #2563eb;
+        color: white;
+        border: none;
+        font-weight: 600;
+      }
+      pre {
+        white-space: pre-wrap;
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 12px;
+        border-radius: 8px;
+        overflow: auto;
+      }
+      .hint {
+        color: #64748b;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>SMTP 邮件发送</h1>
+      <p class="hint">SMTP 配置从 Cloudflare Pages 环境变量/机密读取。</p>
+
+      <form id="sendForm" class="grid">
+        <div class="full">
+          <label for="to">收件人邮箱</label>
+          <input id="to" name="to" type="email" required placeholder="user@example.com" />
+        </div>
+
+        <div class="full">
+          <label for="subject">主题</label>
+          <input id="subject" name="subject" type="text" required placeholder="邮件主题" />
+        </div>
+
+        <div class="full">
+          <label for="text">正文</label>
+          <textarea id="text" name="text" required placeholder="邮件内容..."></textarea>
+        </div>
+
+        <div>
+          <label for="count">发送数量</label>
+          <input id="count" name="count" type="number" min="1" max="200" value="1" />
+        </div>
+
+        <div>
+          <label for="intervalMs">发送间隔(ms)</label>
+          <input id="intervalMs" name="intervalMs" type="number" min="0" value="500" />
+        </div>
+
+        <div class="full">
+          <button type="submit">开始发送</button>
+        </div>
+      </form>
+
+      <h3>结果</h3>
+      <pre id="result">等待发送...</pre>
+    </div>
+
+    <script>
+      const form = document.getElementById("sendForm");
+      const result = document.getElementById("result");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        result.textContent = "发送中，请稍候...";
+
+        const payload = {
+          to: form.to.value,
+          subject: form.subject.value,
+          text: form.text.value,
+          count: Number(form.count.value || 1),
+          intervalMs: Number(form.intervalMs.value || 0),
+        };
+
+        try {
+          const resp = await fetch("/api/send", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await resp.json();
+          result.textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+          result.textContent = `请求失败: ${err?.message || err}`;
+        }
+      });
+    </script>
+  </body>
+</html>
